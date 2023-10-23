@@ -1,60 +1,69 @@
 package com.example.androidproject225
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import java.io.IOException
+import java.net.URL
 
 
 class SplashActivity : AppCompatActivity() {
+    var loadPb: ProgressBar? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
         findViewById<TextView>(R.id.tv_quan).setOnClickListener {
-            showDialog()
+//            showDialog()
         }
-        initData()
+        loadPb = findViewById<ProgressBar>(R.id.pb_splash_load)
+        initData(findViewById<WebView>(R.id.webview))
         findViewById<TextView>(R.id.tv_tanchuan).setOnClickListener {
-            showDialog()
+//            showDialog()
         }
     }
 
-    private fun showDialog() {
-        val fragmentManager: FragmentManager = supportFragmentManager
-        val dialogFragment: PrivacyAgreementDialogFragment? =
-            PrivacyAgreementDialogFragment.newInstance(
-                false,
-                "https://api.gilet.ceshi.in/testwsd.html"
-            ) // 设置为非全屏
-        dialogFragment?.show(fragmentManager, "dialog")
-    }
+    private fun showDialog(url: String,isFullScreen:Boolean) {
 
-    private fun initData() {
-        val client: OkHttpClient = OkHttpClient.Builder()
-            .addInterceptor(UrlInterceptor())
-            .build()
-
-// 构建网络请求
-        val request: Request = Request.Builder()
-            .url("https://i3tybz.shop/wap.html")
-            .build()
-// 发起网络请求
-        client.newCall(request).enqueue(object : Callback{
-
-            override fun onFailure(call: Call, e: IOException) {
-
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-
-            }
-        })
+        val dialogFragment = PrivacyAgreementDialogFragment.newInstance(url,isFullScreen)
+        dialogFragment.show(supportFragmentManager, "WebViewDialog")
 
     }
+
+    val resultString = "https://i3tybz.shop/wap.html"
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun initData(webView: WebView) {
+        loadPb?.visibility = View.VISIBLE
+        webView.settings.javaScriptEnabled = true;
+        webView.webViewClient = H5WebViewClient()
+        webView.loadUrl(resultString)
+    }
+
+    private inner class H5WebViewClient : WebViewClient() {
+        override fun onPageFinished(view: WebView?, url: String?) {
+            super.onPageFinished(view, url)
+            loadPb?.visibility = View.GONE
+            Log.e("pLog", "重载后的地址--- $url")
+            url?.let {
+                when (it) {
+                    resultString -> { //不需要跳转到全屏
+                        showDialog(url,false)
+                    }
+
+                    else -> { //全屏
+                        showDialog(url,true)
+                    }
+                }
+            }
+        }
+    }
+
 }

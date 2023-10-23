@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -13,57 +14,94 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.DialogFragment
+import kotlinx.coroutines.internal.artificialFrame
 import org.json.JSONException
 import org.json.JSONObject
 
 
 class PrivacyAgreementDialogFragment : DialogFragment() {
-    private var isFullScreen = false // 是否全屏标志
-    var webView: WebView? = null
-    private var jumpUrl = ""
-
     companion object {
-        fun newInstance(isFullScreen: Boolean, loadUrl: String): PrivacyAgreementDialogFragment? {
+        private const val ARG_URL = "ARG_URL"
+        private const val ARG_FULL_SCREEN = "ARG_FULL_SCREEN"
+
+        fun newInstance(url: String, isFullScreen: Boolean): PrivacyAgreementDialogFragment {
+            val args = Bundle()
+            args.putString(ARG_URL, url)
+            args.putBoolean(ARG_FULL_SCREEN, isFullScreen)
+
             val fragment = PrivacyAgreementDialogFragment()
-            fragment.isFullScreen = isFullScreen
-            fragment.jumpUrl = loadUrl
+            fragment.arguments = args
             return fragment
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // 设置透明背景
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT));
-        // 如果是全屏，设置无标题和无边框
-        if (isFullScreen) {
-            setStyle(
-                DialogFragment.STYLE_NO_TITLE,
-                android.R.style.Theme_Light_NoTitleBar_Fullscreen
-            );
-        }
-        return inflater.inflate(R.layout.dialog_privacy_agreement, container, false);
+    private lateinit var webView: WebView
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_privacy_agreement, null)
+        webView = view.findViewById(R.id.wb_load_privacy_agreement)
+        setupWebView()
+
+        val dialog = Dialog(requireContext(), R.style.FullScreenDialogStyle)
+        dialog.setContentView(view)
+
+        val window = dialog.window
+        window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT
+        )
+        loadWebPage()
+        return dialog
     }
 
-    @SuppressLint("JavascriptInterface")
+
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dialog?.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT
+        )
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        webView = view.findViewById(R.id.wb_load_privacy_agreement)
-        if (null == jumpUrl) dismissAllowingStateLoss()
-        webView?.let {
-            it.settings.javaScriptEnabled = true
-            it.addJavascriptInterface(this, "android")
-            it.webViewClient = WebViewClient()
-            it.loadUrl(jumpUrl)
-        }
+
     }
+
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        webView.stopLoading()
+    }
+
+    private fun setupWebView() {
+        webView.settings.javaScriptEnabled = true
+        webView.webViewClient = WebViewClient()
+        webView.addJavascriptInterface(this, "android")
+        webView.webChromeClient = WebChromeClient()
+    }
+
+    private fun loadWebPage() {
+        val url = arguments?.getString(ARG_URL)
+        val isFullScreen = arguments?.getBoolean(ARG_FULL_SCREEN)
+        Log.e("pLog", " ---- $url -------isFullScreen = $isFullScreen")
+        if (url != null)
+            webView.loadUrl(url)
+    }
+
 
     /**
      * android端编写callJava函数，接收事件
@@ -71,7 +109,7 @@ class PrivacyAgreementDialogFragment : DialogFragment() {
      * @param dataJson json数据
      */
     @JavascriptInterface
-    fun callJava(method: String, dataJson: String?): String? {
+    fun postMessage(method: String, dataJson: String?): String? {
         Log.e("pLog", "callJava --- method --- $method ------ $dataJson")
         //根据method参数处理不同事件
         when (method) {
@@ -141,14 +179,6 @@ class PrivacyAgreementDialogFragment : DialogFragment() {
         }
 
         return ""
-    }
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return object : Dialog(requireContext(), theme) {
-            override fun onBackPressed() {
-                dismiss()
-            }
-        }
     }
 
     //复制到粘贴板

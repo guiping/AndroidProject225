@@ -12,6 +12,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
+import com.appsflyer.AppsFlyerLib
 import java.net.URL
 
 
@@ -25,13 +26,13 @@ class SplashActivity : AppCompatActivity() {
         }
         loadPb = findViewById<ProgressBar>(R.id.pb_splash_load)
         initData(findViewById<WebView>(R.id.webview))
+        initAf()
         findViewById<TextView>(R.id.tv_tanchuan).setOnClickListener {
 //            showDialog()
         }
     }
 
     private fun showDialog(url: String,isFullScreen:Boolean) {
-
         val dialogFragment = PrivacyAgreementDialogFragment.newInstance(url,isFullScreen)
         dialogFragment.show(supportFragmentManager, "WebViewDialog")
 
@@ -45,6 +46,15 @@ class SplashActivity : AppCompatActivity() {
         webView.settings.javaScriptEnabled = true;
         webView.webViewClient = H5WebViewClient()
         webView.loadUrl(resultString)
+    }
+    private fun initAf(){
+        val appsflyer = AppsFlyerLib.getInstance()
+        appsflyer.setDebugLog(false)
+        appsflyer.setMinTimeBetweenSessions(0)
+        AppsFlyerLib.getInstance().setAppInviteOneLink("H5hv");
+        appsflyer.init("",null,this)
+        appsflyer.start(this)
+
     }
 
     private inner class H5WebViewClient : WebViewClient() {
@@ -65,5 +75,4 @@ class SplashActivity : AppCompatActivity() {
             }
         }
     }
-
 }

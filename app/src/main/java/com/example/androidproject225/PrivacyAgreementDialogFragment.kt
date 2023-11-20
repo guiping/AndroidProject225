@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.DialogFragment
@@ -87,15 +88,31 @@ class PrivacyAgreementDialogFragment : DialogFragment() {
         webView.stopLoading()
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
         webView.settings.javaScriptEnabled = true
+        webView.settings.allowFileAccess = true
+        webView.settings.domStorageEnabled = true
+        webView.settings.setSupportMultipleWindows(true)
+        webView.isHorizontalScrollBarEnabled = false
+        webView.isVerticalScrollBarEnabled = false
         webView.webViewClient = WebViewClient()
-        webView.addJavascriptInterface(this, "android")
-        webView.webChromeClient = WebChromeClient()
+        webView.addJavascriptInterface(XXXJsAndroid(activity), "Android")
+        webView.webChromeClient = ChromeClients(requireActivity(), webView, 1)
+        webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): Boolean {
+                view?.loadUrl(url)
+                return true
+            }
+        }
     }
 
+    lateinit var url: String
     private fun loadWebPage() {
-        val url = arguments?.getString(ARG_URL)
+        url = arguments?.getString(ARG_URL).toString()
         val isFullScreen = arguments?.getBoolean(ARG_FULL_SCREEN)
         Log.e("pLog", " ---- $url -------isFullScreen = $isFullScreen")
         if (url != null)
@@ -103,55 +120,55 @@ class PrivacyAgreementDialogFragment : DialogFragment() {
     }
 
 
-    /**
-     * android端编写callJava函数，接收事件
-     * @param method  方法名，见下方说明
-     * @param dataJson json数据
-     */
-    @JavascriptInterface
-    fun postMessage(method: String, dataJson: String?): String? {
-        Log.e("pLog", "callJava --- method --- $method ------ $dataJson")
-        //根据method参数处理不同事件
-        when (method) {
-            "firstrecharge" -> {
-
-            }
-
-            "login" -> {
-
-            }
-
-            "register" -> {
-
-            }
-
-            "recharge" -> {
-
-            }
-
-            "openWindow" -> {
-
-            }
-
-            "closeWindow" -> {
-
-            }
-
-            "recharge" -> {
-
-            }
-
-            "getPackageName" ->              // 获取包名
-                return getPackageName(dataJson)
-
-            "setOrientation" ->              //切换横竖屏
-                return setOrientation(dataJson)
-
-            else -> Log.e("Tag", "callJava error, methon: $method")
-        }
-        // 有返回值时返回具体数据，没有时返回空字符串
-        return ""
-    }
+//    /**
+//     * android端编写callJava函数，接收事件
+//     * @param method  方法名，见下方说明
+//     * @param dataJson json数据
+//     */
+//    @JavascriptInterface
+//    fun postMessage(method: String, dataJson: String?): String? {
+//        Log.e("pLog", "callJava --- method --- $method ------ $dataJson")
+//        //根据method参数处理不同事件
+//        when (method) {
+//            "firstrecharge" -> {
+//
+//            }
+//
+//            "login" -> {
+//
+//            }
+//
+//            "register" -> {
+//
+//            }
+//
+//            "recharge" -> {
+//
+//            }
+//
+//            "openWindow" -> {
+//
+//            }
+//
+//            "closeWindow" -> {
+//
+//            }
+//
+//            "recharge" -> {
+//
+//            }
+//
+//            "getPackageName" ->              // 获取包名
+//                return getPackageName(dataJson)
+//
+//            "setOrientation" ->              //切换横竖屏
+//                return setOrientation(dataJson)
+//
+//            else -> Log.e("Tag", "callJava error, methon: $method")
+//        }
+//        // 有返回值时返回具体数据，没有时返回空字符串
+//        return ""
+//    }
 
     private fun getPackageName(dataJson: String?): String? {
         // 内部等待实现

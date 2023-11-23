@@ -8,11 +8,5 @@
         android:id="@+id/wb_load_privacy_agreement"
         android:layout_width="match_parent"
         android:layout_height="0dp"/>
-    <ImageView
-        android:layout_weight="0.01"
-        android:id="@+id/img_close"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center_horizontal|bottom"
-        android:src="@mipmap/img_close"/>
+
 </LinearLayout>

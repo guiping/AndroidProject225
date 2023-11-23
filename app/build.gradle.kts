@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.androidproject225"
+    namespace = "com.gwieolsd.gwoemove"
     compileSdk = 33
 
     defaultConfig {
-        applicationId = "com.example.androidproject225"
+        applicationId = "com.gwieolsd.gwoemove"
         minSdk = 24
         targetSdk = 33
         versionCode = 1
@@ -37,7 +37,7 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.core:core-ktx:1.8.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.8.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")

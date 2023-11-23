@@ -1,4 +1,4 @@
-package com.example.androidproject225
+package com.gwieolsd.gwoemove
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

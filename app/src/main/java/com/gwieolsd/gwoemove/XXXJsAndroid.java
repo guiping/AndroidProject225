@@ -1,4 +1,4 @@
-package com.example.androidproject225;
+package com.gwieolsd.gwoemove;
 
 import android.app.Activity;
 import android.net.Uri;

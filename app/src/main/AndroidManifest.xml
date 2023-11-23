@@ -28,8 +28,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".WebActivity"
-            android:launchMode="singleTop" />
+            android:name=".WebActivity" />
     </application>
 
 </manifest>

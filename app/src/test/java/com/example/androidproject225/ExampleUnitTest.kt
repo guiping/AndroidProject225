@@ -1,4 +1,4 @@
-package com.example.androidproject225
+package com.gwieolsd.gwoemove
 
 import org.junit.Test
 

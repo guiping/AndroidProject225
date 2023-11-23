@@ -1,4 +1,4 @@
-package com.example.androidproject225;
+package com.gwieolsd.gwoemove;
 
 import android.app.Activity;
 import android.content.Context;
@@ -117,10 +117,9 @@ public class XXEventUtils {
     public static void openSystemBrowser(Context context, Uri uri) {
         Intent intent;
         try {
-            intent = Intent.parseUri(uri.toString(), Intent.URI_INTENT_SCHEME);
-            intent.addCategory(Intent.CATEGORY_APP_BROWSER);
-            intent.setComponent(null);
-            context.startActivity(intent);
+            intent = new Intent(Intent.ACTION_VIEW, uri);
+            Intent chooser = Intent.createChooser(intent, "Choose a browser");
+            context.startActivity(chooser);
         } catch (Exception e) {
             Log.e(TAG, "openSystemBrowser failure " + e);
         }

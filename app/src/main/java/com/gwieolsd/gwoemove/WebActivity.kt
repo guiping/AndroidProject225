@@ -1,4 +1,4 @@
-package com.example.androidproject225
+package com.gwieolsd.gwoemove
 
 import android.os.Bundle
 import android.text.TextUtils
@@ -21,10 +21,11 @@ class WebActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         web = WebView(this)
+        setContentView(web)
         val webP = web.layoutParams as ViewGroup.LayoutParams
         webP.height = LayoutParams.MATCH_PARENT
         webP.width = LayoutParams.MATCH_PARENT
-        setContentView(web)
+        web.layoutParams = webP
 //        AppCompatActivity
         val url = intent.getStringExtra("url")
         isWsd = intent.getIntExtra("isWsd", 0)

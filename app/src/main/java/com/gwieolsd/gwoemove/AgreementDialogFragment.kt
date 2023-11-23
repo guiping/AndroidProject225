@@ -1,29 +1,15 @@
-package com.example.androidproject225
+package com.gwieolsd.gwoemove
 
 import android.annotation.SuppressLint
 import android.app.Dialog
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.DialogInterface
-import android.content.pm.ActivityInfo
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
-import android.webkit.JavascriptInterface
-import android.webkit.WebChromeClient
+import android.view.*
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.DialogFragment
-import kotlinx.coroutines.internal.artificialFrame
-import org.json.JSONException
-import org.json.JSONObject
 
 
 class PrivacyAgreementDialogFragment : DialogFragment() {
@@ -58,6 +44,13 @@ class PrivacyAgreementDialogFragment : DialogFragment() {
             WindowManager.LayoutParams.MATCH_PARENT
         )
         loadWebPage()
+        dialog.setOnKeyListener { _: DialogInterface?, keyCode: Int, event: KeyEvent ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                // 返回键被按下时的处理逻辑
+                return@setOnKeyListener true // 返回 true 表示事件被消耗，不会传递给下一层
+            }
+            false // 返回 false 表示事件未被消耗，继续传递给下一层
+        }
         return dialog
     }
 
@@ -119,101 +112,4 @@ class PrivacyAgreementDialogFragment : DialogFragment() {
             webView.loadUrl(url)
     }
 
-
-//    /**
-//     * android端编写callJava函数，接收事件
-//     * @param method  方法名，见下方说明
-//     * @param dataJson json数据
-//     */
-//    @JavascriptInterface
-//    fun postMessage(method: String, dataJson: String?): String? {
-//        Log.e("pLog", "callJava --- method --- $method ------ $dataJson")
-//        //根据method参数处理不同事件
-//        when (method) {
-//            "firstrecharge" -> {
-//
-//            }
-//
-//            "login" -> {
-//
-//            }
-//
-//            "register" -> {
-//
-//            }
-//
-//            "recharge" -> {
-//
-//            }
-//
-//            "openWindow" -> {
-//
-//            }
-//
-//            "closeWindow" -> {
-//
-//            }
-//
-//            "recharge" -> {
-//
-//            }
-//
-//            "getPackageName" ->              // 获取包名
-//                return getPackageName(dataJson)
-//
-//            "setOrientation" ->              //切换横竖屏
-//                return setOrientation(dataJson)
-//
-//            else -> Log.e("Tag", "callJava error, methon: $method")
-//        }
-//        // 有返回值时返回具体数据，没有时返回空字符串
-//        return ""
-//    }
-
-    private fun getPackageName(dataJson: String?): String? {
-        // 内部等待实现
-        return context?.packageName
-    }
-
-    private fun getAndroidID(): String? {
-        // 内部等待实现
-        val androidId =
-            Settings.Secure.getString(requireContext().contentResolver, Settings.Secure.ANDROID_ID);
-        return androidId
-    }
-
-    private fun setOrientation(dataJson: String?): String? {
-        val json = JSONObject(dataJson)
-        val dir = json.getString("dir")
-        activity?.let {
-            it.runOnUiThread(Runnable {
-                if (dir == "V") {
-                    it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                } else {
-                    it.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-                }
-            })
-        }
-
-        return ""
-    }
-
-    //复制到粘贴板
-    fun copyToClipBoard(strJson: String?) {
-        //insert code
-        try {
-            val json = JSONObject(strJson)
-            val content = json.getString("content")
-            requireActivity()?.let {
-                it.runOnUiThread(Runnable {
-                    val myClipboard: ClipboardManager =
-                        it.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    myClipboard.text = content
-                })
-            }
-
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
-    }
 }

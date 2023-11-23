@@ -1,4 +1,4 @@
-package com.example.androidproject225
+package com.gwieolsd.gwoemove
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
